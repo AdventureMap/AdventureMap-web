@@ -60,12 +60,14 @@ function submit(){
   userController.signUp(form.username,form.email,form.phone,form.password)
     .then(res => {
       ElMessage.success("Registered")
+      router.push({name: "login"})
     })
     .catch(err => {
       console.log(err)
       ElMessage.error({
         message:"HTTP status: "+err.response.status
-            +"\nRegistration error"
+            +"\nRegistration error\n"+
+            err.response.data.description
       })
     })
 }
@@ -80,7 +82,7 @@ onMounted(() => {
   <div style="margin: 6vh"></div>
   <el-row justify="center">
     <el-col style="justify-self: center">
-      <h2>Authorization form</h2>
+      <h2>Registration form</h2>
     </el-col>
     <el-col>
       <div style="margin: 16px"></div>

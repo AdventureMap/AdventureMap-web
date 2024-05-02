@@ -37,12 +37,14 @@ function submit(){
         state.rtoken = res.data.data.refresh_token
       })
       userStore.set()
+      router.push({name: "index"})
     })
     .catch(err => {
       console.log(err)
       ElMessage.error({
         message:"HTTP status: "+err.response.status
-            +"\nAuthentification error"
+            +"\nAuthentification error\n"+
+            err.response.data.description
       })
     })
 }
