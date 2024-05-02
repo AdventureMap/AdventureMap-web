@@ -27,7 +27,7 @@ function handleSelect(pathName: string){
     <div style="flex-grow: 0.5"></div>
     <el-menu-item index="index">
       <img
-          style="margin-top: 20%"
+          style="margin-top: 20%;z-index: 10"
           height="120%"
           src="../assets/logo-text.svg"
           alt="MeetMap logo"
