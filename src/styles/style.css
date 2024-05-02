@@ -15280,8 +15280,20 @@ html.dark .el-empty {
 
 body {
   margin: 0;
+  position: absolute;
+  height: 100%;
+  width: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  background-color: var(--el-bg-color);
+}
+
+#app {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /*# sourceMappingURL=style.css.map */
