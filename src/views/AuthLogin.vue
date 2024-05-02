@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import HeaderMenu from "../components/HeaderMenu.vue";
-import {reactive, ref} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import router from "../plugins/router.ts";
 import {ElMessage} from "element-plus";
+import * as userController from "../api/UserController.ts";
+import {useUserStore} from "../stores/user.js";
 
 const authPage = ref("login")
+const userStore = useUserStore()
 const form = reactive({
   username: "",
   password: "",
@@ -14,19 +17,44 @@ function authPageHandler(pathName){
   router.push({name: pathName})
 }
 function submit(){
+  let flag = false
   if(form.username==""){
     ElMessage.error({message: "Userame must not be empty"})
+    flag = true
   }
   if(form.password==""){
     ElMessage.error({message: "Password must not be empty"})
+    flag = true
   }
-  console.log(form)
+  if(flag)return
+  userController.signIn(form.username,form.password)
+    .then(res => {
+      console.log(res)
+      userStore.$patch((state) => {
+        state.username = form.username
+        state.user_id = res.data.data.user_id
+        state.atoken = res.data.data.access_token
+        state.rtoken = res.data.data.refresh_token
+      })
+      userStore.set()
+    })
+    .catch(err => {
+      console.log(err)
+      ElMessage.error({
+        message:"HTTP status: "+err.response.status
+            +"\nAuthentification error"
+      })
+    })
 }
+
+onMounted(() => {
+  userStore.get()
+})
 </script>
 
 <template>
   <HeaderMenu></HeaderMenu>
-  <div style="margin: 12vh"></div>
+  <div style="margin: 6vh"></div>
   <el-row justify="center">
     <el-col style="justify-self: center">
       <h2>Authorization form</h2>

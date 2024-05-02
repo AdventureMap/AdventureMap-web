@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import HeaderMenu from "../components/HeaderMenu.vue";
-import {reactive, ref} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import router from "../plugins/router.ts";
 import {ElMessage} from "element-plus";
+import * as userController from "../api/UserController.ts" ;
+import {useUserStore} from "../stores/user.js";
 
 const authPage = ref("register")
+const userStore = useUserStore()
 const form = reactive({
   username: "",
   email: "",
+  phone: "",
   password: "",
   rpassword: "",
 })
@@ -16,37 +20,64 @@ function authPageHandler(pathName){
   router.push({name: pathName})
 }
 function submit(){
+  let flag = false
   if(form.username==""){
     ElMessage.error({message: "Username must not be empty"})
+    flag = true
   }
   if(form.username.includes('@')){
     ElMessage.error({message: "Username must not include '@'"})
+    flag = true
   }
   if(form.email==""){
     ElMessage.error({message: "Email must not be empty"})
+    flag = true
   }
   if(form.email.startsWith('@') ||
     form.email.endsWith('@') ||
     !form.email.includes('@')
   ){
     ElMessage.error({message: "Email incorrect"})
+    flag = true
+  }
+  if(form.phone==""){
+    ElMessage.error({message: "Phone must not be empty"})
+    flag = true
   }
   if(form.password==""){
     ElMessage.error({message: "Password must not be empty"})
+    flag = true
   }
   if(form.password.length<8){
     ElMessage.error({message: "Password must be longer than 8 characters"})
+    flag = true
   }
   if(form.rpassword!=form.password){
     ElMessage.error({message: "Passwords doesn't match"})
+    flag = true
   }
-  console.log(form)
+  if(flag)return
+  userController.signUp(form.username,form.email,form.phone,form.password)
+    .then(res => {
+      ElMessage.success("Registered")
+    })
+    .catch(err => {
+      console.log(err)
+      ElMessage.error({
+        message:"HTTP status: "+err.response.status
+            +"\nRegistration error"
+      })
+    })
 }
+
+onMounted(() => {
+  userStore.get()
+})
 </script>
 
 <template>
   <HeaderMenu></HeaderMenu>
-  <div style="margin: 10vh"></div>
+  <div style="margin: 6vh"></div>
   <el-row justify="center">
     <el-col style="justify-self: center">
       <h2>Authorization form</h2>
@@ -71,6 +102,9 @@ function submit(){
         </el-form-item>
         <el-form-item label="Email">
           <el-input v-model="form.email" />
+        </el-form-item>
+        <el-form-item label="Phone">
+          <el-input type="number" v-model="form.phone" />
         </el-form-item>
         <el-form-item label="Password">
           <el-input show-password v-model="form.password" />

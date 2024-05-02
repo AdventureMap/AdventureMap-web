@@ -44,8 +44,8 @@ function handleSelect(pathName: string){
     </el-sub-menu>
     <el-sub-menu v-else index="">
       <template #title>
+        <el-text style="margin-right: 10px">{{username}}</el-text>
         <el-avatar></el-avatar>
-        <el-text>{{username}}</el-text>
       </template>
       <el-menu-item index="profile">Profile</el-menu-item>
       <el-menu-item index="events">My events</el-menu-item>
