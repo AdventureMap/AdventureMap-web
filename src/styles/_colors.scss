@@ -1,0 +1,23 @@
+$l-background: #fbf6f6;
+$l-surface: #1e2f42;
+$l-primary-lighten: #EFCCD9;
+$l-primary: #db88a7;
+$l-primary-darken: #C23B6D;
+$l-secondary-lighten: #8DC1DB;
+$l-secondary: #4096c2;
+$l-secondary-darken: #265B76;
+
+@forward "../../node_modules/element-plus/theme-chalk/src/common/var.scss" with (
+  $colors: (
+    'primary': (
+      'base': $l-primary,
+    ),
+  ),
+  $bg-color: (
+    '': $l-background,
+    'page': $l-background,
+    'overlay': $l-background,
+  )
+);
+@use "../../node_modules/element-plus/theme-chalk/src/index.scss" as *;
+@use "../../node_modules/element-plus/theme-chalk/src/dark/css-vars.scss" as *;
