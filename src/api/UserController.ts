@@ -93,14 +93,14 @@ export function set_password(
     });
 }
 export function post_personal_info(
-    name?: string,
-    lastName?: string,
-    city?: string,
-    birthDate?: bigint,
+    name: string,
+    lastName: string,
+    city: string,
+    birthDate: bigint,
     atoken: string,
 ){
     return axios({
-        url: "user/post/personal_info",
+        url: "user/post/personal-info",
         method: "post",
         baseURL: baseURL,
         headers: {

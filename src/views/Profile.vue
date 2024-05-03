@@ -23,17 +23,42 @@ const userDetail = reactive({
 const userStore = useUserStore()
 const editInfoDialog = ref(false)
 const editInfoForm = reactive({
-  name: userDetail.name,
-  lastName: userDetail.lastName,
-  city: userDetail.city,
-  bithDate: userDetail.birthDate,
+  name: "",
+  lastName: "",
+  city: "",
+  birthDate: "",
 })
 const changePasswordDialog = ref(false)
 const changePasswordForm = reactive({
   oldpass: "",
   newpass: "",
 })
+const disabledDate = (time: Date) => {
+  return time.getTime() > Date.now()
+}
 
+function editInfoConfirm(){
+  const birthDate = new Date(editInfoForm.birthDate)
+  userController.post_personal_info(
+      editInfoForm.name,
+      editInfoForm.lastName,
+      editInfoForm.city,
+      birthDate.getTime(),
+      userStore.atoken,
+  )
+      .then(res => {
+        console.log(res)
+        ElMessage.success({message: "Info was edited"})
+        userDetail.name=editInfoForm.name
+        userDetail.lastName=editInfoForm.lastName
+        userDetail.city=editInfoForm.city
+        userDetail.birthDate=birthDate.getTime()
+      })
+      .catch(err => {
+        console.log(err)
+        ElMessage.error({message: "Update page and repeat"})
+      })
+}
 function changePasswordConfirm(){
   let flag = false
   if(changePasswordForm.newpass==""){
@@ -59,69 +84,80 @@ function changePasswordConfirm(){
         ElMessage.error({message: "Old password is incorrect"})
       })
 }
+function updateUserDetail(){
+  userController.info(userStore.atoken, Number(props.id))
+      .then(res => {
+        console.log(res)
+        console.log("by access")
+        const user = res.data.data
+        userDetail.name = user.name
+        userDetail.lastName = user.lastName
+        userDetail.city = user.__city
+        userDetail.birthDate = user.birthDate
+        editInfoForm.name = user.name
+        editInfoForm.lastName = user.lastName
+        editInfoForm.city = user.__city
+        editInfoForm.birthDate = user.birthDate
+        userDetail.registrationTimestamp = user.registrationTimestamp
+        if(user.events != null){
+          userDetail.events = Array.from(user.events)
+        }else{
+          userDetail.events = []
+        }
+        userDetail.username = user.username
+      })
+      .catch(err => {
+        console.log(err)
+        userController.token(userStore.rtoken)
+            .then(res => {
+              console.log("token was refreshed")
+              userStore.$patch(state => {
+                state.atoken = res.data.data.access_token
+                state.rtoken = res.data.data.refresh_token
+              })
+              userStore.set()
+              userController.info(userStore.atoken, Number(props.id))
+                  .then(res => {
+                    console.log(res)
+                    console.log("by refresh")
+                    const user = res.data.data
+                    userDetail.name = user.name
+                    userDetail.lastName = user.lastName
+                    userDetail.city = user.__city
+                    userDetail.birthDate = user.birthDate
+                    editInfoForm.name = user.name
+                    editInfoForm.lastName = user.lastName
+                    editInfoForm.city = user.__city
+                    editInfoForm.birthDate = user.birthDate
+                    userDetail.registrationTimestamp = user.registrationTimestamp
+                    if(user.events != null){
+                      userDetail.events = Array.from(user.events)
+                    }else{
+                      userDetail.events = []
+                    }
+                    userDetail.username = user.username
+                  })
+                  .catch(err => {
+                    console.log(err)
+                    userStore.$reset()
+                    userStore.set()
+                    router.push({name: "login"})
+                  })
+            })
+            .catch(err => {
+              console.log(err)
+              userStore.$reset()
+              userStore.set()
+              router.push({name: "login"})
+            })
+      })
+}
 onMounted(() => {
   userStore.get()
   if(userStore.username == ""){
     router.push({name: "login"})
   }
-  userController.info(userStore.atoken, Number(props.id))
-    .then(res => {
-      console.log(res)
-      console.log("by access")
-      const user = res.data.data
-      userDetail.name = user.name
-      userDetail.lastName = user.lastName
-      userDetail.city = user.city
-      userDetail.birthDate = user.birthDate
-      userDetail.registrationTimestamp = user.registrationTimestamp
-      if(user.events != null){
-        userDetail.events = Array.from(user.events)
-      }else{
-        userDetail.events = []
-      }
-      userDetail.username = user.username
-    })
-    .catch(err => {
-      console.log(err)
-      userController.token(userStore.rtoken)
-        .then(res => {
-          console.log("token was refreshed")
-          userStore.$patch(state => {
-            state.atoken = res.data.data.access_token
-            state.rtoken = res.data.data.refresh_token
-          })
-          userStore.set()
-          userController.info(userStore.atoken, Number(props.id))
-              .then(res => {
-                console.log(res)
-                console.log("by refresh")
-                const user = res.data.data
-                userDetail.name = user.name
-                userDetail.lastName = user.lastName
-                userDetail.city = user.city
-                userDetail.birthDate = user.birthDate
-                userDetail.registrationTimestamp = user.registrationTimestamp
-                if(user.events != null){
-                  userDetail.events = Array.from(user.events)
-                }else{
-                  userDetail.events = []
-                }
-                userDetail.username = user.username
-              })
-              .catch(err => {
-                console.log(err)
-                userStore.$reset()
-                userStore.set()
-                router.push({name: "login"})
-              })
-        })
-        .catch(err => {
-          console.log(err)
-          userStore.$reset()
-          userStore.set()
-          router.push({name: "login"})
-        })
-    })
+  updateUserDetail()
 })
 </script>
 
@@ -216,6 +252,7 @@ onMounted(() => {
                 </el-button>
               </el-row>
             </el-col>
+            <el-col :span="24"><div style="margin: 16px"></div></el-col>
           </el-row>
         </el-col>
         <el-col :xs="24" :md="17">
@@ -226,6 +263,33 @@ onMounted(() => {
       </el-row>
     </el-col>
   </el-row>
+  <el-dialog v-model="editInfoDialog" title="Edit info" width="500">
+    <el-form :model="editInfoForm">
+      <el-form-item label="Name" :label-width="140">
+        <el-input v-model="editInfoForm.name" />
+      </el-form-item>
+      <el-form-item label="LastName" :label-width="140">
+        <el-input v-model="editInfoForm.lastName" />
+      </el-form-item>
+      <el-form-item label="City" :label-width="140">
+        <el-input v-model="editInfoForm.city" />
+      </el-form-item>
+      <el-form-item label="BirthDate" :label-width="140">
+        <el-date-picker
+            v-model="editInfoForm.birthDate"
+            type="date"
+            placeholder="Pick a day"
+            :disabled-date="disabledDate"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="editInfoDialog = false">Cancel</el-button>
+        <el-button type="primary" @click="editInfoConfirm">Confirm</el-button>
+      </div>
+    </template>
+  </el-dialog>
   <el-dialog v-model="changePasswordDialog" title="Change password" width="500">
     <el-form :model="changePasswordForm">
       <el-form-item label="Old password" :label-width="140">
