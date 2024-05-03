@@ -21,7 +21,44 @@ const userDetail = reactive({
   username: "",
 })
 const userStore = useUserStore()
+const editInfoDialog = ref(false)
+const editInfoForm = reactive({
+  name: userDetail.name,
+  lastName: userDetail.lastName,
+  city: userDetail.city,
+  bithDate: userDetail.birthDate,
+})
+const changePasswordDialog = ref(false)
+const changePasswordForm = reactive({
+  oldpass: "",
+  newpass: "",
+})
 
+function changePasswordConfirm(){
+  let flag = false
+  if(changePasswordForm.newpass==""){
+    ElMessage.error({message: "Password must not be empty"})
+    flag = true
+  }
+  if(changePasswordForm.newpass.length<8){
+    ElMessage.error({message: "Password must be longer than 8 characters"})
+    flag = true
+  }
+  if(flag)return
+  userController.set_password(
+      changePasswordForm.oldpass,
+      changePasswordForm.newpass,
+      userStore.atoken
+  )
+      .then(res => {
+        console.log(res)
+        ElMessage.success({message: "Password was changed"})
+      })
+      .catch(err => {
+        console.log(err)
+        ElMessage.error({message: "Old password is incorrect"})
+      })
+}
 onMounted(() => {
   userStore.get()
   if(userStore.username == ""){
@@ -114,7 +151,7 @@ onMounted(() => {
             </el-col>
             <el-col :xs="20" :sm="12" :md="24">
               <el-row v-if="userStore.user_id==id" justify="center">
-                <el-button style="width: 100%" type="info">
+                <el-button @click="editInfoDialog=true" style="width: 100%" type="info">
                   Edit info
                 </el-button>
               </el-row>
@@ -174,7 +211,7 @@ onMounted(() => {
               </el-row>
               <el-row><div style="margin: 4px"></div></el-row>
               <el-row v-if="userStore.user_id==id" justify="center">
-                <el-button style="width: 100%" type="info">
+                <el-button @click="changePasswordDialog=true" style="width: 100%" type="info">
                   Change password
                 </el-button>
               </el-row>
@@ -189,6 +226,22 @@ onMounted(() => {
       </el-row>
     </el-col>
   </el-row>
+  <el-dialog v-model="changePasswordDialog" title="Change password" width="500">
+    <el-form :model="changePasswordForm">
+      <el-form-item label="Old password" :label-width="140">
+        <el-input v-model="changePasswordForm.oldpass" show-password />
+      </el-form-item>
+      <el-form-item label="New password" :label-width="140">
+        <el-input v-model="changePasswordForm.newpass" show-password />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="changePasswordDialog = false">Cancel</el-button>
+        <el-button type="primary" @click="changePasswordConfirm">Confirm</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped lang="scss">
