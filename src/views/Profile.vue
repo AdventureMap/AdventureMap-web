@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import HeaderMenu from "../components/HeaderMenu.vue";
+import UserDetailField from "../components/UserDetailField.vue"
 import {onMounted, reactive, ref} from "vue";
 import {useUserStore} from "../stores/user.js";
 import router from "../plugins/router.ts";
 import * as userController from "../api/UserController.ts" ;
 import {ElMessage} from "element-plus";
+import {dateToString} from "../composable/date.ts";
 
 const props = defineProps<{
     id: string
@@ -14,7 +16,7 @@ const userDetail = reactive({
   lastName: "",
   city: "",
   birthDate: "",
-  registrationTimestamp: 0,
+  registrationTimestamp: "",
   events: [],
   username: "",
 })
@@ -34,7 +36,7 @@ onMounted(() => {
       userDetail.lastName = user.lastName
       userDetail.city = user.city
       userDetail.birthDate = user.birthDate
-      userDetail.registrationTimestamp = Date.parse(user.registrationTimestamp)
+      userDetail.registrationTimestamp = user.registrationTimestamp
       if(user.events != null){
         userDetail.events = Array.from(user.events)
       }else{
@@ -61,7 +63,7 @@ onMounted(() => {
                 userDetail.lastName = user.lastName
                 userDetail.city = user.city
                 userDetail.birthDate = user.birthDate
-                userDetail.registrationTimestamp = Date.parse(user.registrationTimestamp)
+                userDetail.registrationTimestamp = user.registrationTimestamp
                 if(user.events != null){
                   userDetail.events = Array.from(user.events)
                 }else{
@@ -98,19 +100,93 @@ onMounted(() => {
     <el-col>
       <div style="margin: 16px"></div>
     </el-col>
-    <el-col :xs="20" :sm="20" :md="18" :lg="16">
-      <el-card>
-        <el-row>
-          <el-col :sm=" 24" :md="6">
-            <el-row>
-              <el-avatar style="width: 100%" shape="square"></el-avatar>
-            </el-row>
-          </el-col>
-          <el-col :sm="24" :md="18">
-            <el-card></el-card>
-          </el-col>
-        </el-row>
-      </el-card>
+    <el-col :xs="20" :sm="20" :md="18">
+      <el-row :gutter="16">
+        <el-col :xs=" 24" :md="7">
+          <el-row justify="center" :gutter="36">
+            <el-col :xs="24" :sm="8" :md="24">
+              <el-row justify="center">
+                <el-avatar :size="204" shape="square"></el-avatar>
+              </el-row>
+            </el-col>
+            <el-col :xs="24" :sm="0" :md="24">
+              <div style="margin: 16px"></div>
+            </el-col>
+            <el-col :xs="20" :sm="12" :md="24">
+              <el-row v-if="userStore.user_id==id" justify="center">
+                <el-button style="width: 100%" type="info">
+                  Edit info
+                </el-button>
+              </el-row>
+              <el-row><div style="margin: 4px"></div></el-row>
+              <el-row>
+                <UserDetailField>
+                  <template #title>
+                    Name:
+                  </template>
+                  <template v-if="userDetail.name!=''" #content>
+                    {{userDetail.name}}
+                  </template>
+                </UserDetailField>
+              </el-row>
+              <el-row>
+                <UserDetailField>
+                  <template #title>
+                    Last Name:
+                  </template>
+                  <template v-if="userDetail.lastName!=''" #content>
+                    {{userDetail.lastName}}
+                  </template>
+                </UserDetailField>
+              </el-row>
+              <el-row>
+                <el-divider content-position="left">Other:</el-divider>
+              </el-row>
+              <el-row>
+                <UserDetailField>
+                  <template #title>
+                    City:
+                  </template>
+                  <template v-if="userDetail.city!=null" #content>
+                    {{userDetail.city}}
+                  </template>
+                </UserDetailField>
+              </el-row>
+              <el-row>
+                <UserDetailField>
+                  <template #title>
+                    Birth date:
+                  </template>
+                  <template v-if="userDetail.birthDate!=null" #content>
+                    {{dateToString(userDetail.birthDate)}}
+                  </template>
+                </UserDetailField>
+              </el-row>
+              <el-row>
+                <UserDetailField>
+                  <template #title>
+                    Registered:
+                  </template>
+                  <template v-if="userDetail.registrationTimestamp!=null" #content>
+                    {{dateToString(userDetail.registrationTimestamp)}}
+                  </template>
+                </UserDetailField>
+              </el-row>
+              <el-row><div style="margin: 4px"></div></el-row>
+              <el-row v-if="userStore.user_id==id" justify="center">
+                <el-button style="width: 100%" type="info">
+                  Change password
+                </el-button>
+              </el-row>
+            </el-col>
+          </el-row>
+        </el-col>
+        <el-col :xs="24" :md="17">
+          <el-card>
+            Lorem Ipsum - это текст-"рыба", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной "рыбой" для текстов на латинице с начала XVI века. В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов. Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн. Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum.Lorem Ipsum - это текст-"рыба", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной "рыбой" для текстов на латинице с начала XVI века. В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов. Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн. Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum.Lorem Ipsum - это текст-"рыба", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной "рыбой" для текстов на латинице с начала XVI века. В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов. Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн. Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum.Lorem Ipsum - это текст-"рыба", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной "рыбой" для текстов на латинице с начала XVI века. В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов. Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн. Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum.Lorem Ipsum - это текст-"рыба", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной "рыбой" для текстов на латинице с начала XVI века. В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов. Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн. Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum.Lorem Ipsum - это текст-"рыба", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной "рыбой" для текстов на латинице с начала XVI века. В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов. Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн. Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum.Lorem Ipsum - это текст-"рыба", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной "рыбой" для текстов на латинице с начала XVI века. В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов. Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн. Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum.Lorem Ipsum - это текст-"рыба", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной "рыбой" для текстов на латинице с начала XVI века. В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов. Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн. Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum.
+          </el-card>
+        </el-col>
+      </el-row>
     </el-col>
   </el-row>
 </template>
