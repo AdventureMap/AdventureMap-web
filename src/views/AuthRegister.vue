@@ -59,6 +59,7 @@ function submit(){
   if(flag)return
   userController.signUp(form.username,form.email,form.phone,form.password)
     .then(res => {
+      console.log(res)
       ElMessage.success("Registered")
       router.push({name: "login"})
     })
@@ -81,7 +82,7 @@ onMounted(() => {
   <HeaderMenu></HeaderMenu>
   <div style="margin: 6vh"></div>
   <el-row justify="center">
-    <el-col style="justify-self: center">
+    <el-col>
       <h2>Registration form</h2>
     </el-col>
     <el-col>
