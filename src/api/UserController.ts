@@ -43,3 +43,33 @@ export function signIn(
         }
     });
 }
+export function info(
+    atoken: string,
+    id: number
+){
+    return axios({
+        url: "user/get/info",
+        method: "get",
+        baseURL: baseURL,
+        headers: {
+            headers,
+            Authorization: "Bearer "+atoken,
+        },
+        params: {
+            id: id,
+        }
+    });
+}
+export function token(
+    rtoken: string,
+){
+    return axios({
+        url: "user/get/token",
+        method: "get",
+        baseURL: baseURL,
+        headers: {
+            headers,
+            Authorization: "Bearer "+rtoken,
+        },
+    });
+}

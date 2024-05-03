@@ -7,10 +7,12 @@ import router from "../plugins/router.ts";
 
 const activeIndex = ref("index")
 const userStore = useUserStore()
-const {username} = storeToRefs(userStore)
+const {username, user_id} = storeToRefs(userStore)
 function handleSelect(pathName: string){
-  if(pathName!=""){
+  if(pathName!="" && pathName!="profile"){
     router.push({name: pathName})
+  }else if(pathName=="profile"){
+    router.push({name: pathName, params: {id: user_id.value}})
   }
 }
 </script>

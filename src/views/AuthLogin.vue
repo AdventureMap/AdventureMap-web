@@ -58,7 +58,7 @@ onMounted(() => {
   <HeaderMenu></HeaderMenu>
   <div style="margin: 6vh"></div>
   <el-row justify="center">
-    <el-col style="justify-self: center">
+    <el-col>
       <h2>Authorization form</h2>
     </el-col>
     <el-col>

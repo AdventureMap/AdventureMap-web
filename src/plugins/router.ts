@@ -23,6 +23,12 @@ const router = createRouter({
             name: "index",
             component: () => import("../views/Index.vue"),
         },
+        {
+            path: "/profile/:id",
+            name: "profile",
+            component: () => import("../views/Profile.vue"),
+            props: true,
+        },
     ]
 })
 
