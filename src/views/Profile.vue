@@ -7,7 +7,7 @@ import * as userController from "../api/UserController.ts" ;
 import {ElMessage} from "element-plus";
 
 const props = defineProps<{
-    id: number
+    id: string
 }>()
 const userDetail = reactive({
   name: "",
@@ -16,6 +16,7 @@ const userDetail = reactive({
   birthDate: "",
   registrationTimestamp: 0,
   events: [],
+  username: "",
 })
 const userStore = useUserStore()
 
@@ -24,7 +25,7 @@ onMounted(() => {
   if(userStore.username == ""){
     router.push({name: "login"})
   }
-  userController.info(userStore.atoken, props.id)
+  userController.info(userStore.atoken, Number(props.id))
     .then(res => {
       console.log(res)
       console.log("by access")
@@ -39,6 +40,7 @@ onMounted(() => {
       }else{
         userDetail.events = []
       }
+      userDetail.username = user.username
     })
     .catch(err => {
       console.log(err)
@@ -49,7 +51,8 @@ onMounted(() => {
             state.atoken = res.data.data.access_token
             state.rtoken = res.data.data.refresh_token
           })
-          userController.info(userStore.atoken, props.id)
+          userStore.set()
+          userController.info(userStore.atoken, Number(props.id))
               .then(res => {
                 console.log(res)
                 console.log("by refresh")
@@ -64,6 +67,7 @@ onMounted(() => {
                 }else{
                   userDetail.events = []
                 }
+                userDetail.username = user.username
               })
               .catch(err => {
                 console.log(err)
@@ -89,14 +93,23 @@ onMounted(() => {
       <div style="margin: 16px"></div>
     </el-col>
     <el-col class="header">
-        <h2>{{userStore.username}}</h2><h4>'s profile</h4>
+        <h2>{{userDetail.username}}</h2><h4>'s profile</h4>
     </el-col>
     <el-col>
       <div style="margin: 16px"></div>
     </el-col>
-    <el-col :xs="20" :sm="16" :md="12" :lg="10" class="login-form">
+    <el-col :xs="20" :sm="20" :md="18" :lg="16">
       <el-card>
-
+        <el-row>
+          <el-col :sm=" 24" :md="6">
+            <el-row>
+              <el-avatar style="width: 100%" shape="square"></el-avatar>
+            </el-row>
+          </el-col>
+          <el-col :sm="24" :md="18">
+            <el-card></el-card>
+          </el-col>
+        </el-row>
       </el-card>
     </el-col>
   </el-row>
@@ -106,8 +119,6 @@ onMounted(() => {
 @use '../styles/colors';
 .el-card {
   width: 100%;
-  max-width: 1200px;
-  margin: auto;
   height: 100%;
 }
 .header {
